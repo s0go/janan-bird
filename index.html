@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>장안고 스킨 장애물 피하기</title>
+
+<title>Jangan Bird</title>
 
 <style>
 * {
@@ -12,69 +13,207 @@
 
 body {
     margin: 0;
-    background: #111827;
+    min-height: 100vh;
+
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    font-family: Arial, "Noto Sans KR", sans-serif;
+
+    background:
+        linear-gradient(
+            180deg,
+            #172554,
+            #111827
+        );
+
+    font-family:
+        Arial,
+        "Noto Sans KR",
+        sans-serif;
 }
 
 #gameBox {
     position: relative;
+
     width: min(900px, 95vw);
     aspect-ratio: 16 / 9;
+
     overflow: hidden;
+
     border: 4px solid #facc15;
     border-radius: 18px;
+
     background: #87ceeb;
+
+    box-shadow:
+        0 15px 50px rgba(0,0,0,.5);
 }
 
 canvas {
     width: 100%;
     height: 100%;
+
     display: block;
 }
 
 #score {
     position: absolute;
+
     top: 15px;
     left: 20px;
+
     color: white;
+
     font-size: 25px;
     font-weight: bold;
-    text-shadow: 2px 2px 4px #000;
+
+    text-shadow:
+        2px 2px 4px black;
+
+    z-index: 5;
 }
+
+/* 화면 가운데 메뉴 */
 
 #menu {
     position: absolute;
+
     inset: 0;
+
     display: flex;
+
     justify-content: center;
     align-items: center;
+
     text-align: center;
+
+    z-index: 10;
+
+    pointer-events: none;
 }
 
 .panel {
-    background: rgba(17, 24, 39, 0.92);
-    padding: 30px 45px;
+    width: min(400px, 90%);
+
+    padding: 28px;
+
+    background:
+        rgba(17, 24, 39, .94);
+
+    border:
+        2px solid #facc15;
+
     border-radius: 20px;
+
     color: white;
+
+    box-shadow:
+        0 10px 35px rgba(0,0,0,.5);
+
+    pointer-events: auto;
+}
+
+.panel h1 {
+    margin-top: 0;
 }
 
 button {
     border: none;
-    padding: 12px 25px;
+
+    padding:
+        12px 25px;
+
     border-radius: 10px;
+
     background: #facc15;
+
     color: #111827;
+
     font-size: 18px;
+
     font-weight: bold;
+
     cursor: pointer;
 }
 
 button:hover {
     background: #fde047;
+}
+
+input {
+    width: 100%;
+
+    padding: 12px;
+
+    margin:
+        10px 0 15px;
+
+    border:
+        2px solid #64748b;
+
+    border-radius: 10px;
+
+    font-size: 17px;
+
+    outline: none;
+}
+
+input:focus {
+    border-color: #facc15;
+}
+
+.leaderboard {
+    margin-top: 20px;
+
+    padding-top: 15px;
+
+    border-top:
+        1px solid #475569;
+
+    text-align: left;
+}
+
+.leaderboard h2 {
+    text-align: center;
+
+    margin:
+        0 0 12px;
+}
+
+.rank {
+    display: flex;
+
+    justify-content: space-between;
+
+    padding: 7px 10px;
+
+    margin-bottom: 5px;
+
+    background:
+        rgba(255,255,255,.08);
+
+    border-radius: 7px;
+}
+
+.rank:first-child {
+    background:
+        rgba(250,204,21,.25);
+}
+
+.rankName {
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    max-width: 230px;
+}
+
+.rankScore {
+    font-weight: bold;
+
+    color: #facc15;
 }
 </style>
 </head>
@@ -83,72 +222,97 @@ button:hover {
 
 <div id="gameBox">
 
-    <canvas id="game" width="900" height="506"></canvas>
+    <canvas
+        id="game"
+        width="900"
+        height="506">
+    </canvas>
 
     <div id="score">
-        점수: <span id="scoreNumber">0</span>
+        점수:
+        <span id="scoreNumber">0</span>
     </div>
 
-    <div id="menu">
-        <div class="panel">
-            <h1>장안고 장애물 피하기</h1>
-            <p>스페이스바 또는 클릭으로 점프!</p>
-            <button onclick="startGame()">게임 시작</button>
-        </div>
-    </div>
+    <div id="menu"></div>
 
 </div>
 
+
 <script>
 
-/* =========================================
-   장안고 마크
-   GitHub에 올릴 때 이 HTML과 같은 폴더에
-   logo.png 파일을 넣어주세요.
-   ========================================= */
+/* =====================================================
+   장안고 로고
+   =====================================================
+
+   GitHub 저장소에
+
+   index.html
+   logo.png
+
+   두 파일을 같은 폴더에 넣어주세요.
+===================================================== */
 
 const logo = new Image();
+
 logo.src = "logo.png";
 
 
-/* =========================================
-   게임 기본 설정
-   ========================================= */
+/* =====================================================
+   Canvas
+===================================================== */
 
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+const canvas =
+    document.getElementById("game");
+
+const ctx =
+    canvas.getContext("2d");
 
 const WIDTH = canvas.width;
 const HEIGHT = canvas.height;
 
-const scoreNumber = document.getElementById("scoreNumber");
-const menu = document.getElementById("menu");
+
+/* =====================================================
+   UI
+===================================================== */
+
+const scoreNumber =
+    document.getElementById("scoreNumber");
+
+const menu =
+    document.getElementById("menu");
 
 
-/* =========================================
+/* =====================================================
    플레이어
-   ========================================= */
+===================================================== */
 
 const player = {
+
     x: 150,
+
     y: HEIGHT / 2,
-    size: 62,
+
+    size: 64,
 
     velocity: 0,
 
     gravity: 0.42,
+
     jumpPower: -8.2
+
 };
 
 
-/* =========================================
-   게임 상태
-   ========================================= */
+/* =====================================================
+   게임 변수
+===================================================== */
 
 let gameRunning = false;
+
 let gameOver = false;
 
 let score = 0;
+
 let frame = 0;
 
 let speed = 3.7;
@@ -156,64 +320,220 @@ let speed = 3.7;
 let obstacles = [];
 
 
-/* =========================================
-   게임 시작
-   ========================================= */
+/* =====================================================
+   리더보드
+===================================================== */
 
-function startGame() {
+function getLeaderboard() {
 
-    player.y = HEIGHT / 2;
+    try {
+
+        const data =
+            localStorage.getItem(
+                "janganBirdLeaderboard"
+            );
+
+        if (!data) {
+            return [];
+        }
+
+        const parsed =
+            JSON.parse(data);
+
+        if (!Array.isArray(parsed)) {
+            return [];
+        }
+
+        return parsed;
+
+    } catch (error) {
+
+        console.error(
+            "리더보드 불러오기 실패:",
+            error
+        );
+
+        return [];
+    }
+}
+
+
+function saveLeaderboard(board) {
+
+    try {
+
+        localStorage.setItem(
+            "janganBirdLeaderboard",
+            JSON.stringify(board)
+        );
+
+    } catch (error) {
+
+        console.error(
+            "리더보드 저장 실패:",
+            error
+        );
+    }
+}
+
+
+/* =====================================================
+   리더보드 HTML
+===================================================== */
+
+function leaderboardHTML() {
+
+    const board =
+        getLeaderboard();
+
+    if (board.length === 0) {
+
+        return `
+            <div class="leaderboard">
+                <h2>🏆 리더보드</h2>
+
+                <p style="text-align:center">
+                    아직 기록이 없습니다.
+                </p>
+            </div>
+        `;
+    }
+
+
+    return `
+        <div class="leaderboard">
+
+            <h2>🏆 TOP 10</h2>
+
+            ${
+                board
+                    .slice(0, 10)
+                    .map((item, index) => {
+
+                        return `
+                            <div class="rank">
+
+                                <span class="rankName">
+                                    ${index + 1}.
+                                    ${escapeHTML(item.name)}
+                                </span>
+
+                                <span class="rankScore">
+                                    ${item.score}
+                                </span>
+
+                            </div>
+                        `;
+
+                    })
+                    .join("")
+            }
+
+        </div>
+    `;
+}
+
+
+/* =====================================================
+   HTML 문자 안전 처리
+===================================================== */
+
+function escapeHTML(text) {
+
+    return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+
+/* =====================================================
+   게임 초기화
+===================================================== */
+
+function resetGame() {
+
+    player.y =
+        HEIGHT / 2;
+
     player.velocity = 0;
 
     score = 0;
+
     frame = 0;
 
     speed = 3.7;
 
     obstacles = [];
 
-    scoreNumber.textContent = score;
+    scoreNumber.textContent = "0";
 
     gameOver = false;
+}
+
+
+/* =====================================================
+   게임 시작
+===================================================== */
+
+function startGame() {
+
+    resetGame();
+
     gameRunning = true;
 
     menu.style.display = "none";
 }
 
 
-/* =========================================
+/* =====================================================
    점프
-   ========================================= */
+===================================================== */
 
 function jump() {
 
     if (!gameRunning) {
+
         startGame();
+
     }
 
     if (gameOver) {
+
         startGame();
+
     }
 
-    player.velocity = player.jumpPower;
+    player.velocity =
+        player.jumpPower;
 }
 
 
-/* =========================================
+/* =====================================================
    장애물 생성
-   ========================================= */
+===================================================== */
 
 function createObstacle() {
 
     const gap = 155;
 
-    const minTop = 50;
-    const maxTop = HEIGHT - gap - 80;
+    const minTop = 55;
+
+    const maxTop =
+        HEIGHT -
+        gap -
+        80;
 
     const topHeight =
-        minTop + Math.random() * (maxTop - minTop);
+        minTop +
+        Math.random() *
+        (maxTop - minTop);
+
 
     obstacles.push({
+
         x: WIDTH + 30,
 
         width: 75,
@@ -223,28 +543,44 @@ function createObstacle() {
         gap: gap,
 
         passed: false
+
     });
 }
 
 
-/* =========================================
-   충돌 판정
-   ========================================= */
+/* =====================================================
+   충돌
+===================================================== */
 
 function collision(a, b) {
 
     return (
-        a.x < b.x + b.width &&
-        a.x + a.width > b.x &&
-        a.y < b.y + b.height &&
-        a.y + a.height > b.y
+
+        a.x <
+        b.x + b.width
+
+        &&
+
+        a.x + a.width >
+        b.x
+
+        &&
+
+        a.y <
+        b.y + b.height
+
+        &&
+
+        a.y + a.height >
+        b.y
+
     );
 }
 
 
-/* =========================================
+/* =====================================================
    게임 업데이트
-   ========================================= */
+===================================================== */
 
 function update() {
 
@@ -252,20 +588,25 @@ function update() {
         return;
     }
 
+
     frame++;
 
 
-    /* 플레이어 물리 */
+    /* 중력 */
 
-    player.velocity += player.gravity;
+    player.velocity +=
+        player.gravity;
 
-    player.y += player.velocity;
+    player.y +=
+        player.velocity;
 
 
     /* 장애물 생성 */
 
     if (frame % 105 === 0) {
+
         createObstacle();
+
     }
 
 
@@ -276,94 +617,155 @@ function update() {
         obstacle.x -= speed;
 
 
-        /* 위쪽 장애물 */
-
         const topObstacle = {
+
             x: obstacle.x,
+
             y: 0,
+
             width: obstacle.width,
+
             height: obstacle.top
+
         };
 
 
-        /* 아래쪽 장애물 */
-
         const bottomObstacle = {
+
             x: obstacle.x,
 
-            y: obstacle.top + obstacle.gap,
+            y:
+                obstacle.top +
+                obstacle.gap,
 
             width: obstacle.width,
 
             height:
                 HEIGHT -
-                (obstacle.top + obstacle.gap)
+                obstacle.top -
+                obstacle.gap
+
         };
 
 
-        /* 충돌 */
+        /* 캐릭터 충돌 범위 */
 
         const playerBox = {
-            x: player.x + 7,
-            y: player.y + 7,
-            width: player.size - 14,
-            height: player.size - 14
+
+            x:
+                player.x + 8,
+
+            y:
+                player.y + 8,
+
+            width:
+                player.size - 16,
+
+            height:
+                player.size - 16
+
         };
 
 
         if (
-            collision(playerBox, topObstacle) ||
-            collision(playerBox, bottomObstacle)
+
+            collision(
+                playerBox,
+                topObstacle
+            )
+
+            ||
+
+            collision(
+                playerBox,
+                bottomObstacle
+            )
+
         ) {
+
             endGame();
+
         }
 
 
         /* 점수 */
 
         if (
-            !obstacle.passed &&
-            obstacle.x + obstacle.width < player.x
+
+            !obstacle.passed
+
+            &&
+
+            obstacle.x +
+            obstacle.width <
+            player.x
+
         ) {
 
             obstacle.passed = true;
 
             score++;
 
-            scoreNumber.textContent = score;
+            scoreNumber.textContent =
+                score;
 
 
-            /* 점수가 올라갈수록 조금씩 빨라짐 */
+            /* 난이도 증가 */
 
-            speed = Math.min(
-                7,
-                3.7 + score * 0.08
-            );
+            speed =
+                Math.min(
+                    7,
+                    3.7 +
+                    score * 0.08
+                );
+
         }
+
     }
 
 
-    /* 지나간 장애물 제거 */
+    /* 화면 밖 장애물 삭제 */
 
-    obstacles = obstacles.filter(
-        obstacle => obstacle.x + obstacle.width > 0
-    );
+    obstacles =
+        obstacles.filter(
+
+            obstacle =>
+                obstacle.x +
+                obstacle.width >
+                0
+
+        );
 
 
-    /* 천장 / 바닥 충돌 */
+    /* 천장 */
 
     if (
-        player.y < 0 ||
-        player.y + player.size > HEIGHT
+        player.y < 0
     ) {
+
         endGame();
+
     }
+
+
+    /* 바닥 */
+
+    if (
+        player.y +
+        player.size >
+        HEIGHT
+    ) {
+
+        endGame();
+
+    }
+
 }
 
 
-/* =========================================
+/* =====================================================
    게임 오버
-   ========================================= */
+===================================================== */
 
 function endGame() {
 
@@ -372,43 +774,219 @@ function endGame() {
     }
 
     gameOver = true;
+
     gameRunning = false;
 
-    menu.style.display = "flex";
+
+    /* 이름 입력 화면 */
+
+    menu.style.display =
+        "flex";
+
 
     menu.innerHTML = `
-        <div class="panel">
-            <h1>게임 오버!</h1>
-            <p>최종 점수</p>
-            <h2>${score}</h2>
 
-            <button onclick="startGame()">
-                다시 시작
+        <div class="panel">
+
+            <h1>💥 게임 오버!</h1>
+
+            <p>
+                최종 점수
+            </p>
+
+            <h2
+                style="
+                color:#facc15;
+                font-size:40px;
+                margin:5px;
+                "
+            >
+                ${score}
+            </h2>
+
+            <p>
+                이름을 입력해서
+                기록을 남겨보세요!
+            </p>
+
+
+            <input
+                id="playerName"
+                maxlength="12"
+                placeholder="이름 입력"
+                autocomplete="off"
+            >
+
+
+            <br>
+
+
+            <button onclick="submitScore()">
+                점수 등록
             </button>
+
+
+            ${leaderboardHTML()}
+
         </div>
+
     `;
+
+
+    /* 자동으로 이름 입력 */
+
+    setTimeout(() => {
+
+        const input =
+            document.getElementById(
+                "playerName"
+            );
+
+        if (input) {
+            input.focus();
+        }
+
+    }, 50);
+
 }
 
 
-/* =========================================
+/* =====================================================
+   점수 등록
+===================================================== */
+
+function submitScore() {
+
+    const input =
+        document.getElementById(
+            "playerName"
+        );
+
+
+    let name =
+        input.value.trim();
+
+
+    if (!name) {
+
+        name = "익명";
+
+    }
+
+
+    /* 최대 12글자 */
+
+    name =
+        name.substring(
+            0,
+            12
+        );
+
+
+    const board =
+        getLeaderboard();
+
+
+    board.push({
+
+        name: name,
+
+        score: score,
+
+        date:
+            Date.now()
+
+    });
+
+
+    /* 높은 점수순 */
+
+    board.sort(
+        (a, b) =>
+            b.score -
+            a.score
+    );
+
+
+    /* TOP 10만 저장 */
+
+    const top10 =
+        board.slice(
+            0,
+            10
+        );
+
+
+    saveLeaderboard(top10);
+
+
+    /* 결과 화면 */
+
+    menu.innerHTML = `
+
+        <div class="panel">
+
+            <h1>🏆 기록 등록 완료!</h1>
+
+            <p>
+                ${escapeHTML(name)}님의 점수
+            </p>
+
+            <h2
+                style="
+                color:#facc15;
+                font-size:40px;
+                "
+            >
+                ${score}
+            </h2>
+
+
+            <button onclick="startGame()">
+                다시 플레이
+            </button>
+
+
+            ${leaderboardHTML()}
+
+        </div>
+
+    `;
+
+}
+
+
+/* =====================================================
    배경
-   ========================================= */
+===================================================== */
 
 function drawBackground() {
 
     /* 하늘 */
 
-    const sky = ctx.createLinearGradient(
+    const sky =
+        ctx.createLinearGradient(
+            0,
+            0,
+            0,
+            HEIGHT
+        );
+
+
+    sky.addColorStop(
         0,
-        0,
-        0,
-        HEIGHT
+        "#60a5fa"
     );
 
-    sky.addColorStop(0, "#60a5fa");
-    sky.addColorStop(1, "#bfdbfe");
+
+    sky.addColorStop(
+        1,
+        "#bfdbfe"
+    );
+
 
     ctx.fillStyle = sky;
+
 
     ctx.fillRect(
         0,
@@ -420,16 +998,36 @@ function drawBackground() {
 
     /* 구름 */
 
-    ctx.fillStyle = "rgba(255,255,255,0.75)";
+    ctx.fillStyle =
+        "rgba(255,255,255,.75)";
 
-    drawCloud(130, 80, 45);
-    drawCloud(390, 120, 55);
-    drawCloud(720, 70, 45);
+
+    drawCloud(
+        130,
+        80,
+        45
+    );
+
+
+    drawCloud(
+        390,
+        120,
+        55
+    );
+
+
+    drawCloud(
+        720,
+        70,
+        45
+    );
 
 
     /* 바닥 */
 
-    ctx.fillStyle = "#65a30d";
+    ctx.fillStyle =
+        "#65a30d";
+
 
     ctx.fillRect(
         0,
@@ -438,7 +1036,10 @@ function drawBackground() {
         35
     );
 
-    ctx.fillStyle = "#84cc16";
+
+    ctx.fillStyle =
+        "#84cc16";
+
 
     ctx.fillRect(
         0,
@@ -446,213 +1047,315 @@ function drawBackground() {
         WIDTH,
         7
     );
+
 }
 
 
-function drawCloud(x, y, size) {
+/* =====================================================
+   구름
+===================================================== */
+
+function drawCloud(
+    x,
+    y,
+    size
+) {
 
     ctx.beginPath();
+
 
     ctx.arc(
         x,
         y,
-        size * 0.55,
+        size * .55,
         0,
         Math.PI * 2
     );
 
+
     ctx.arc(
-        x + size * 0.6,
+        x + size * .6,
         y + 5,
-        size * 0.7,
+        size * .7,
         0,
         Math.PI * 2
     );
+
 
     ctx.arc(
         x + size * 1.2,
         y,
-        size * 0.5,
+        size * .5,
         0,
         Math.PI * 2
     );
 
+
     ctx.fill();
+
 }
 
 
-/* =========================================
-   장애물 그리기
-   ========================================= */
+/* =====================================================
+   장애물
+===================================================== */
 
 function drawObstacles() {
 
-    for (const obstacle of obstacles) {
+    for (
+        const obstacle of obstacles
+    ) {
 
-        ctx.fillStyle = "#166534";
+        /* 파이프 */
+
+        ctx.fillStyle =
+            "#166534";
 
 
         /* 위 */
 
         ctx.fillRect(
+
             obstacle.x,
+
             0,
+
             obstacle.width,
+
             obstacle.top
+
         );
 
 
-        /* 위쪽 끝 */
+        /* 위 끝 */
 
-        ctx.fillStyle = "#22c55e";
+        ctx.fillStyle =
+            "#22c55e";
+
 
         ctx.fillRect(
+
             obstacle.x - 7,
+
             obstacle.top - 16,
+
             obstacle.width + 14,
+
             16
+
         );
 
 
         /* 아래 */
 
-        ctx.fillStyle = "#166534";
+        ctx.fillStyle =
+            "#166534";
+
 
         ctx.fillRect(
+
             obstacle.x,
 
-            obstacle.top + obstacle.gap,
+            obstacle.top +
+            obstacle.gap,
 
             obstacle.width,
 
             HEIGHT -
             obstacle.top -
             obstacle.gap
+
         );
 
 
-        /* 아래쪽 끝 */
+        /* 아래 끝 */
 
-        ctx.fillStyle = "#22c55e";
+        ctx.fillStyle =
+            "#22c55e";
+
 
         ctx.fillRect(
+
             obstacle.x - 7,
 
-            obstacle.top + obstacle.gap,
+            obstacle.top +
+            obstacle.gap,
 
             obstacle.width + 14,
 
             16
+
         );
+
     }
+
 }
 
 
-/* =========================================
-   장안고 원형 마크 캐릭터
-   ========================================= */
+/* =====================================================
+   장안고 로고 캐릭터
+===================================================== */
 
 function drawPlayer() {
 
-    const x = player.x;
-    const y = player.y;
-    const size = player.size;
+    const x =
+        player.x;
+
+    const y =
+        player.y;
+
+    const size =
+        player.size;
 
 
-    /* 회전 */
+    /* 속도에 따른 회전 */
 
-    let rotation =
+    const rotation =
         Math.max(
+
             -0.25,
+
             Math.min(
                 0.55,
-                player.velocity * 0.035
+                player.velocity *
+                0.035
             )
+
         );
 
 
     ctx.save();
 
+
     ctx.translate(
+
         x + size / 2,
+
         y + size / 2
+
     );
 
-    ctx.rotate(rotation);
+
+    ctx.rotate(
+        rotation
+    );
 
 
-    /* 원형 캐릭터 */
+    /* 원형 클리핑 */
 
     ctx.beginPath();
 
+
     ctx.arc(
+
         0,
         0,
+
         size / 2,
+
         0,
         Math.PI * 2
+
     );
+
 
     ctx.closePath();
 
-    ctx.save();
 
     ctx.clip();
 
 
-    /*
-       logo.png가 원형 장안고 마크이므로
-       캐릭터 전체를 마크로 채움
-    */
+    /* 장안고 로고 */
 
-    if (logo.complete && logo.naturalWidth > 0) {
+    if (
+        logo.complete &&
+        logo.naturalWidth > 0
+    ) {
 
         ctx.drawImage(
+
             logo,
+
             -size / 2,
+
             -size / 2,
+
             size,
+
             size
+
         );
 
-    } else {
+    }
 
-        /* 이미지 로딩 전 임시 표시 */
+    else {
 
-        ctx.fillStyle = "#a3c63b";
+        /*
+           logo.png가 아직 없을 때
+           임시 원
+        */
+
+        ctx.fillStyle =
+            "#a3c63b";
 
         ctx.fill();
+
     }
+
+
+    /* 테두리 */
 
     ctx.restore();
 
+    ctx.save();
 
-    /* 원형 테두리 */
+
+    ctx.translate(
+
+        x + size / 2,
+
+        y + size / 2
+
+    );
+
+
+    ctx.rotate(
+        rotation
+    );
+
 
     ctx.beginPath();
 
+
     ctx.arc(
+
         0,
         0,
-        size / 2,
+
+        size / 2 - 1,
+
         0,
         Math.PI * 2
+
     );
+
 
     ctx.lineWidth = 3;
 
-    ctx.strokeStyle = "#facc15";
+    ctx.strokeStyle =
+        "#facc15";
 
     ctx.stroke();
 
 
     ctx.restore();
+
 }
 
 
-/* =========================================
+/* =====================================================
    화면 그리기
-   ========================================= */
+===================================================== */
 
 function draw() {
 
@@ -663,17 +1366,19 @@ function draw() {
         HEIGHT
     );
 
+
     drawBackground();
 
     drawObstacles();
 
     drawPlayer();
+
 }
 
 
-/* =========================================
+/* =====================================================
    게임 루프
-   ========================================= */
+===================================================== */
 
 function gameLoop() {
 
@@ -681,43 +1386,84 @@ function gameLoop() {
 
     draw();
 
-    requestAnimationFrame(gameLoop);
+    requestAnimationFrame(
+        gameLoop
+    );
+
 }
 
 
-/* =========================================
+/* =====================================================
    키보드
-   ========================================= */
+===================================================== */
 
 document.addEventListener(
     "keydown",
     function(event) {
 
-        if (event.code === "Space") {
+        if (
+            event.code === "Space"
+        ) {
 
             event.preventDefault();
 
             jump();
+
         }
+
     }
 );
 
 
-/* =========================================
+/* =====================================================
    마우스 / 터치
-   ========================================= */
+===================================================== */
 
 canvas.addEventListener(
     "pointerdown",
     function() {
+
         jump();
+
     }
 );
 
 
-/* =========================================
+/* =====================================================
+   시작 화면
+===================================================== */
+
+menu.innerHTML = `
+
+    <div class="panel">
+
+        <h1>
+            🟢 JANGAN BIRD
+        </h1>
+
+        <p>
+            장안고 로고를 움직여
+            장애물을 피하세요!
+        </p>
+
+        <p>
+            SPACE / 클릭 = 점프
+        </p>
+
+        <button onclick="startGame()">
+            게임 시작
+        </button>
+
+        ${leaderboardHTML()}
+
+    </div>
+
+`;
+
+
+/* =====================================================
    시작
-   ========================================= */
+===================================================== */
 
 gameLoop();
 
