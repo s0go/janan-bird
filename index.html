@@ -3,1472 +3,190 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Jangan Bird</title>
-
 <style>
-* {
-    box-sizing: border-box;
-}
-
 body {
-    margin: 0;
-    min-height: 100vh;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    background:
-        linear-gradient(
-            180deg,
-            #172554,
-            #111827
-        );
-
-    font-family:
-        Arial,
-        "Noto Sans KR",
-        sans-serif;
+    margin: 0; min-height: 100vh; background: #0f172a;
+    display: flex; justify-content: center; align-items: center; font-family: sans-serif;
 }
-
 #gameBox {
-    position: relative;
-
-    width: min(900px, 95vw);
-    aspect-ratio: 16 / 9;
-
-    overflow: hidden;
-
-    border: 4px solid #facc15;
-    border-radius: 18px;
-
-    background: #87ceeb;
-
-    box-shadow:
-        0 15px 50px rgba(0,0,0,.5);
+    position: relative; width: min(900px, 95vw); aspect-ratio: 16/9;
+    overflow: hidden; border: 4px solid #facc15; border-radius: 18px; background: #87ceeb;
 }
-
-canvas {
-    width: 100%;
-    height: 100%;
-
-    display: block;
-}
-
-#score {
-    position: absolute;
-
-    top: 15px;
-    left: 20px;
-
-    color: white;
-
-    font-size: 25px;
-    font-weight: bold;
-
-    text-shadow:
-        2px 2px 4px black;
-
-    z-index: 5;
-}
-
-/* 화면 가운데 메뉴 */
-
-#menu {
-    position: absolute;
-
-    inset: 0;
-
-    display: flex;
-
-    justify-content: center;
-    align-items: center;
-
-    text-align: center;
-
-    z-index: 10;
-
-    pointer-events: none;
-}
-
-.panel {
-    width: min(400px, 90%);
-
-    padding: 28px;
-
-    background:
-        rgba(17, 24, 39, .94);
-
-    border:
-        2px solid #facc15;
-
-    border-radius: 20px;
-
-    color: white;
-
-    box-shadow:
-        0 10px 35px rgba(0,0,0,.5);
-
-    pointer-events: auto;
-}
-
-.panel h1 {
-    margin-top: 0;
-}
-
-button {
-    border: none;
-
-    padding:
-        12px 25px;
-
-    border-radius: 10px;
-
-    background: #facc15;
-
-    color: #111827;
-
-    font-size: 18px;
-
-    font-weight: bold;
-
-    cursor: pointer;
-}
-
-button:hover {
-    background: #fde047;
-}
-
-input {
-    width: 100%;
-
-    padding: 12px;
-
-    margin:
-        10px 0 15px;
-
-    border:
-        2px solid #64748b;
-
-    border-radius: 10px;
-
-    font-size: 17px;
-
-    outline: none;
-}
-
-input:focus {
-    border-color: #facc15;
-}
-
-.leaderboard {
-    margin-top: 20px;
-
-    padding-top: 15px;
-
-    border-top:
-        1px solid #475569;
-
-    text-align: left;
-}
-
-.leaderboard h2 {
-    text-align: center;
-
-    margin:
-        0 0 12px;
-}
-
-.rank {
-    display: flex;
-
-    justify-content: space-between;
-
-    padding: 7px 10px;
-
-    margin-bottom: 5px;
-
-    background:
-        rgba(255,255,255,.08);
-
-    border-radius: 7px;
-}
-
-.rank:first-child {
-    background:
-        rgba(250,204,21,.25);
-}
-
-.rankName {
-    overflow: hidden;
-
-    text-overflow: ellipsis;
-
-    white-space: nowrap;
-
-    max-width: 230px;
-}
-
-.rankScore {
-    font-weight: bold;
-
-    color: #facc15;
-}
+canvas { width: 100%; height: 100%; display: block; }
+#score { position: absolute; top: 15px; left: 20px; color: white; font-size: 25px; font-weight: bold; text-shadow: 2px 2px 4px black; z-index: 5; }
+#menu { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; z-index: 10; }
+.panel { width: min(380px, 90%); padding: 25px; background: rgba(17, 24, 39, 0.95); border: 2px solid #facc15; border-radius: 20px; color: white; text-align: center; }
+button { border: none; padding: 10px 20px; border-radius: 8px; background: #facc15; color: #111827; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+button:hover { background: #fde047; }
+.btn-del { background: #475569; color: white; font-size: 13px; padding: 6px 12px; }
+.btn-del:hover { background: #64748b; }
+input { width: 100%; padding: 10px; margin: 10px 0; border: 2px solid #64748b; border-radius: 8px; font-size: 16px; outline: none; box-sizing: border-box; }
+input:focus { border-color: #facc15; }
+.leaderboard { margin-top: 15px; padding-top: 10px; border-top: 1px solid #475569; text-align: left; font-size: 14px; max-height: 150px; overflow-y: auto; }
+.rank { display: flex; justify-content: space-between; padding: 4px 8px; margin-bottom: 3px; background: rgba(255,255,255,0.08); border-radius: 5px; }
+.rankScore { color: #facc15; font-weight: bold; }
 </style>
 </head>
-
 <body>
 
 <div id="gameBox">
-
-    <canvas
-        id="game"
-        width="900"
-        height="506">
-    </canvas>
-
-    <div id="score">
-        점수:
-        <span id="scoreNumber">0</span>
-    </div>
-
+    <canvas id="game" width="900" height="506"></canvas>
+    <div id="score">점수: <span id="scoreNum">0</span></div>
     <div id="menu"></div>
-
 </div>
 
-
 <script>
-
-/* =====================================================
-   장안고 로고
-   =====================================================
-
-   GitHub 저장소에
-
-   index.html
-   logo.png
-
-   두 파일을 같은 폴더에 넣어주세요.
-===================================================== */
-
 const logo = new Image();
-
+logo.crossOrigin = "anonymous";
 logo.src = "logo.png";
-    logo.crossOrigin = "anonymous";
 
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const scoreNum = document.getElementById("scoreNum");
+const menu = document.getElementById("menu");
 
-/* =====================================================
-   Canvas
-===================================================== */
+let bird = { x: 150, y: 250, size: 55, vel: 0, gravity: 0.4, jump: -7.5 };
+let pipes = [], score = 0, frame = 0, speed = 3.5, state = "START", playerName = "";
 
-const canvas =
-    document.getElementById("game");
-
-const ctx =
-    canvas.getContext("2d");
-
-const WIDTH = canvas.width;
-const HEIGHT = canvas.height;
-
-
-/* =====================================================
-   UI
-===================================================== */
-
-const scoreNumber =
-    document.getElementById("scoreNumber");
-
-const menu =
-    document.getElementById("menu");
-
-
-/* =====================================================
-   플레이어
-===================================================== */
-
-const player = {
-
-    x: 150,
-
-    y: HEIGHT / 2,
-
-    size: 64,
-
-    velocity: 0,
-
-    gravity: 0.42,
-
-    jumpPower: -8.2
-
-};
-
-
-/* =====================================================
-   게임 변수
-===================================================== */
-
-let gameRunning = false;
-
-let gameOver = false;
-
-let score = 0;
-
-let frame = 0;
-
-let speed = 3.7;
-
-let obstacles = [];
-
-
-/* =====================================================
-   리더보드
-===================================================== */
-
-function getLeaderboard() {
-
-    try {
-
-        const data =
-            localStorage.getItem(
-                "janganBirdLeaderboard"
-            );
-
-        if (!data) {
-            return [];
-        }
-
-        const parsed =
-            JSON.parse(data);
-
-        if (!Array.isArray(parsed)) {
-            return [];
-        }
-
-        return parsed;
-
-    } catch (error) {
-
-        console.error(
-            "리더보드 불러오기 실패:",
-            error
-        );
-
-        return [];
+function getLB() {
+    try { return JSON.parse(localStorage.getItem("janganLeaderboard")) || []; } catch(e) { return []; }
+}
+function saveLB(lb) {
+    localStorage.setItem("janganLeaderboard", JSON.stringify(lb));
+}
+function clearLB() {
+    if(confirm("리더보드를 초기화할까요?")) {
+        localStorage.removeItem("janganLeaderboard");
+        showMenu();
     }
 }
 
+function showMenu(isGameOver = false, finalScore = 0) {
+    menu.style.display = "flex";
+    let lb = getLB();
+    let lbHtml = `<div class="leaderboard"><b>🏆 TOP 리더보드</b>`;
+    if(lb.length === 0) lbHtml += `<p style="text-align:center; color:#94a3b8; margin:8px 0;">기록이 없습니다.</p>`;
+    else lb.slice(0, 5).forEach((item, i) => {
+        lbHtml += `<div class="rank"><span>${i+1}. ${item.name}</span><span class="rankScore">${item.score}점</span></div>`;
+    });
+    lbHtml += `</div><button class="btn-del" onclick="clearLB()">초기화</button>`;
 
-function saveLeaderboard(board) {
-
-    try {
-
-        localStorage.setItem(
-            "janganBirdLeaderboard",
-            JSON.stringify(board)
-        );
-
-    } catch (error) {
-
-        console.error(
-            "리더보드 저장 실패:",
-            error
-        );
+    if(!isGameOver) {
+        menu.innerHTML = `<div class="panel"><h1>🟢 JANGAN BIRD</h1><p>스페이스바나 화면을 눌러 점프하세요!</p><button onclick="startGame()">게임 시작</button>${lbHtml}</div>`;
+    } else {
+        menu.innerHTML = `<div class="panel"><h1>💥 게임 오버!</h1><p>점수: <b style="color:#facc15; font-size:24px;">${finalScore}</b></p><input id="pName" placeholder="이름 입력 (최대 10글자)" maxlength="10"><button onclick="submitScore(${finalScore})">점수 등록</button>${lbHtml}</div>`;
+        setTimeout(() => document.getElementById("pName")?.focus(), 50);
     }
 }
 
-
-/* =====================================================
-   리더보드 HTML
-===================================================== */
-
-function leaderboardHTML() {
-
-    const board =
-        getLeaderboard();
-
-    if (board.length === 0) {
-
-        return `
-            <div class="leaderboard">
-                <h2>🏆 리더보드</h2>
-
-                <p style="text-align:center">
-                    아직 기록이 없습니다.
-                </p>
-            </div>
-        `;
-    }
-
-
-    return `
-        <div class="leaderboard">
-
-            <h2>🏆 TOP 10</h2>
-
-            ${
-                board
-                    .slice(0, 10)
-                    .map((item, index) => {
-
-                        return `
-                            <div class="rank">
-
-                                <span class="rankName">
-                                    ${index + 1}.
-                                    ${escapeHTML(item.name)}
-                                </span>
-
-                                <span class="rankScore">
-                                    ${item.score}
-                                </span>
-
-                            </div>
-                        `;
-
-                    })
-                    .join("")
-            }
-
-        </div>
-    `;
+function submitScore(s) {
+    let input = document.getElementById("pName");
+    let name = input ? input.value.trim() || "익명" : "익명";
+    let lb = getLB();
+    lb.push({ name, score: s });
+    lb.sort((a,b) => b.score - a.score);
+    saveLB(lb);
+    showMenu(false);
 }
-
-
-/* =====================================================
-   HTML 문자 안전 처리
-===================================================== */
-
-function escapeHTML(text) {
-
-    return String(text)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-}
-
-
-/* =====================================================
-   게임 초기화
-===================================================== */
-
-function resetGame() {
-
-    player.y =
-        HEIGHT / 2;
-
-    player.velocity = 0;
-
-    score = 0;
-
-    frame = 0;
-
-    speed = 3.7;
-
-    obstacles = [];
-
-    scoreNumber.textContent = "0";
-
-    gameOver = false;
-}
-
-
-/* =====================================================
-   게임 시작
-===================================================== */
 
 function startGame() {
-
-    resetGame();
-
-    gameRunning = true;
-
     menu.style.display = "none";
+    bird.y = 250; bird.vel = 0;
+    pipes = []; score = 0; frame = 0; speed = 3.5;
+    scoreNum.textContent = "0";
+    state = "PLAYING";
 }
-
-
-/* =====================================================
-   점프
-===================================================== */
 
 function jump() {
-
-    if (!gameRunning) {
-
-        startGame();
-
-    }
-
-    if (gameOver) {
-
-        startGame();
-
-    }
-
-    player.velocity =
-        player.jumpPower;
+    if(state === "START") startGame();
+    else if(state === "PLAYING") bird.vel = bird.jump;
+    else if(state === "GAMEOVER") showMenu(false);
 }
 
-
-/* =====================================================
-   장애물 생성
-===================================================== */
-
-function createObstacle() {
-
-    const gap = 155;
-
-    const minTop = 55;
-
-    const maxTop =
-        HEIGHT -
-        gap -
-        80;
-
-    const topHeight =
-        minTop +
-        Math.random() *
-        (maxTop - minTop);
-
-
-    obstacles.push({
-
-        x: WIDTH + 30,
-
-        width: 75,
-
-        top: topHeight,
-
-        gap: gap,
-
-        passed: false
-
-    });
-}
-
-
-/* =====================================================
-   충돌
-===================================================== */
-
-function collision(a, b) {
-
-    return (
-
-        a.x <
-        b.x + b.width
-
-        &&
-
-        a.x + a.width >
-        b.x
-
-        &&
-
-        a.y <
-        b.y + b.height
-
-        &&
-
-        a.y + a.height >
-        b.y
-
-    );
-}
-
-
-/* =====================================================
-   게임 업데이트
-===================================================== */
-
-function update() {
-
-    if (!gameRunning) {
-        return;
-    }
-
-
-    frame++;
-
-
-    /* 중력 */
-
-    player.velocity +=
-        player.gravity;
-
-    player.y +=
-        player.velocity;
-
-
-    /* 장애물 생성 */
-
-    if (frame % 105 === 0) {
-
-        createObstacle();
-
-    }
-
-
-    /* 장애물 이동 */
-
-    for (const obstacle of obstacles) {
-
-        obstacle.x -= speed;
-
-
-        const topObstacle = {
-
-            x: obstacle.x,
-
-            y: 0,
-
-            width: obstacle.width,
-
-            height: obstacle.top
-
-        };
-
-
-        const bottomObstacle = {
-
-            x: obstacle.x,
-
-            y:
-                obstacle.top +
-                obstacle.gap,
-
-            width: obstacle.width,
-
-            height:
-                HEIGHT -
-                obstacle.top -
-                obstacle.gap
-
-        };
-
-
-        /* 캐릭터 충돌 범위 */
-
-        const playerBox = {
-
-            x:
-                player.x + 8,
-
-            y:
-                player.y + 8,
-
-            width:
-                player.size - 16,
-
-            height:
-                player.size - 16
-
-        };
-
-
-        if (
-
-            collision(
-                playerBox,
-                topObstacle
-            )
-
-            ||
-
-            collision(
-                playerBox,
-                bottomObstacle
-            )
-
-        ) {
-
-            endGame();
-
+document.addEventListener("keydown", e => { if(e.code === "Space") { e.preventDefault(); jump(); } });
+canvas.addEventListener("pointerdown", jump);
+
+function loop() {
+    ctx.clearRect(0, 0, 900, 506);
+
+    // 배경 하늘 & 바닥
+    ctx.fillStyle = "#60a5fa"; ctx.fillRect(0, 0, 900, 470);
+    ctx.fillStyle = "#65a30d"; ctx.fillRect(0, 470, 900, 36);
+
+    if(state === "PLAYING") {
+        frame++;
+        bird.vel += bird.gravity;
+        bird.y += bird.vel;
+
+        if(frame % 100 === 0) {
+            let topH = Math.floor(Math.random() * 200) + 60;
+            pipes.push({ x: 900, top: topH, bottom: topH + 140, passed: false });
         }
 
+        pipes.forEach(p => {
+            p.x -= speed;
+            // 충돌 체크
+            if(bird.x + bird.size > p.x && bird.x < p.x + 65) {
+                if(bird.y < p.top || bird.y + bird.size > p.bottom) {
+                    state = "GAMEOVER";
+                    showMenu(true, score);
+                }
+            }
+            // 점수 획득
+            if(!p.passed && p.x + 65 < bird.x) {
+                p.passed = true;
+                score++;
+                scoreNum.textContent = score;
+                speed = Math.min(6.5, 3.5 + score * 0.05);
+            }
+        });
 
-        /* 점수 */
+        pipes = pipes.filter(p => p.x > -80);
 
-        if (
-
-            !obstacle.passed
-
-            &&
-
-            obstacle.x +
-            obstacle.width <
-            player.x
-
-        ) {
-
-            obstacle.passed = true;
-
-            score++;
-
-            scoreNumber.textContent =
-                score;
-
-
-            /* 난이도 증가 */
-
-            speed =
-                Math.min(
-                    7,
-                    3.7 +
-                    score * 0.08
-                );
-
+        if(bird.y < 0 || bird.y + bird.size > 470) {
+            state = "GAMEOVER";
+            showMenu(true, score);
         }
-
     }
 
-
-    /* 화면 밖 장애물 삭제 */
-
-    obstacles =
-        obstacles.filter(
-
-            obstacle =>
-                obstacle.x +
-                obstacle.width >
-                0
-
-        );
-
-
-    /* 천장 */
-
-    if (
-        player.y < 0
-    ) {
-
-        endGame();
-
-    }
-
-
-    /* 바닥 */
-
-    if (
-        player.y +
-        player.size >
-        HEIGHT
-    ) {
-
-        endGame();
-
-    }
-
-}
-
-
-/* =====================================================
-   게임 오버
-===================================================== */
-
-function endGame() {
-
-    if (gameOver) {
-        return;
-    }
-
-    gameOver = true;
-
-    gameRunning = false;
-
-
-    /* 이름 입력 화면 */
-
-    menu.style.display =
-        "flex";
-
-
-    menu.innerHTML = `
-
-        <div class="panel">
-
-            <h1>💥 게임 오버!</h1>
-
-            <p>
-                최종 점수
-            </p>
-
-            <h2
-                style="
-                color:#facc15;
-                font-size:40px;
-                margin:5px;
-                "
-            >
-                ${score}
-            </h2>
-
-            <p>
-                이름을 입력해서
-                기록을 남겨보세요!
-            </p>
-
-
-            <input
-                id="playerName"
-                maxlength="12"
-                placeholder="이름 입력"
-                autocomplete="off"
-            >
-
-
-            <br>
-
-
-            <button onclick="submitScore()">
-                점수 등록
-            </button>
-
-
-            ${leaderboardHTML()}
-
-        </div>
-
-    `;
-
-
-    /* 자동으로 이름 입력 */
-
-    setTimeout(() => {
-
-        const input =
-            document.getElementById(
-                "playerName"
-            );
-
-        if (input) {
-            input.focus();
-        }
-
-    }, 50);
-
-}
-
-
-/* =====================================================
-   점수 등록
-===================================================== */
-
-function submitScore() {
-
-    const input =
-        document.getElementById(
-            "playerName"
-        );
-
-
-    let name =
-        input.value.trim();
-
-
-    if (!name) {
-
-        name = "익명";
-
-    }
-
-
-    /* 최대 12글자 */
-
-    name =
-        name.substring(
-            0,
-            12
-        );
-
-
-    const board =
-        getLeaderboard();
-
-
-    board.push({
-
-        name: name,
-
-        score: score,
-
-        date:
-            Date.now()
-
+    // 파이프 그리기
+    pipes.forEach(p => {
+        ctx.fillStyle = "#166534";
+        ctx.fillRect(p.x, 0, 65, p.top);
+        ctx.fillRect(p.x, p.bottom, 65, 506 - p.bottom);
     });
 
-
-    /* 높은 점수순 */
-
-    board.sort(
-        (a, b) =>
-            b.score -
-            a.score
-    );
-
-
-    /* TOP 10만 저장 */
-
-    const top10 =
-        board.slice(
-            0,
-            10
-        );
-
-
-    saveLeaderboard(top10);
-
-
-    /* 결과 화면 */
-
-    menu.innerHTML = `
-
-        <div class="panel">
-
-            <h1>🏆 기록 등록 완료!</h1>
-
-            <p>
-                ${escapeHTML(name)}님의 점수
-            </p>
-
-            <h2
-                style="
-                color:#facc15;
-                font-size:40px;
-                "
-            >
-                ${score}
-            </h2>
-
-
-            <button onclick="startGame()">
-                다시 플레이
-            </button>
-
-
-            ${leaderboardHTML()}
-
-        </div>
-
-    `;
-
-}
-
-
-/* =====================================================
-   배경
-===================================================== */
-
-function drawBackground() {
-
-    /* 하늘 */
-
-    const sky =
-        ctx.createLinearGradient(
-            0,
-            0,
-            0,
-            HEIGHT
-        );
-
-
-    sky.addColorStop(
-        0,
-        "#60a5fa"
-    );
-
-
-    sky.addColorStop(
-        1,
-        "#bfdbfe"
-    );
-
-
-    ctx.fillStyle = sky;
-
-
-    ctx.fillRect(
-        0,
-        0,
-        WIDTH,
-        HEIGHT
-    );
-
-
-    /* 구름 */
-
-    ctx.fillStyle =
-        "rgba(255,255,255,.75)";
-
-
-    drawCloud(
-        130,
-        80,
-        45
-    );
-
-
-    drawCloud(
-        390,
-        120,
-        55
-    );
-
-
-    drawCloud(
-        720,
-        70,
-        45
-    );
-
-
-    /* 바닥 */
-
-    ctx.fillStyle =
-        "#65a30d";
-
-
-    ctx.fillRect(
-        0,
-        HEIGHT - 35,
-        WIDTH,
-        35
-    );
-
-
-    ctx.fillStyle =
-        "#84cc16";
-
-
-    ctx.fillRect(
-        0,
-        HEIGHT - 35,
-        WIDTH,
-        7
-    );
-
-}
-
-
-/* =====================================================
-   구름
-===================================================== */
-
-function drawCloud(
-    x,
-    y,
-    size
-) {
-
-    ctx.beginPath();
-
-
-    ctx.arc(
-        x,
-        y,
-        size * .55,
-        0,
-        Math.PI * 2
-    );
-
-
-    ctx.arc(
-        x + size * .6,
-        y + 5,
-        size * .7,
-        0,
-        Math.PI * 2
-    );
-
-
-    ctx.arc(
-        x + size * 1.2,
-        y,
-        size * .5,
-        0,
-        Math.PI * 2
-    );
-
-
-    ctx.fill();
-
-}
-
-
-/* =====================================================
-   장애물
-===================================================== */
-
-function drawObstacles() {
-
-    for (
-        const obstacle of obstacles
-    ) {
-
-        /* 파이프 */
-
-        ctx.fillStyle =
-            "#166534";
-
-
-        /* 위 */
-
-        ctx.fillRect(
-
-            obstacle.x,
-
-            0,
-
-            obstacle.width,
-
-            obstacle.top
-
-        );
-
-
-        /* 위 끝 */
-
-        ctx.fillStyle =
-            "#22c55e";
-
-
-        ctx.fillRect(
-
-            obstacle.x - 7,
-
-            obstacle.top - 16,
-
-            obstacle.width + 14,
-
-            16
-
-        );
-
-
-        /* 아래 */
-
-        ctx.fillStyle =
-            "#166534";
-
-
-        ctx.fillRect(
-
-            obstacle.x,
-
-            obstacle.top +
-            obstacle.gap,
-
-            obstacle.width,
-
-            HEIGHT -
-            obstacle.top -
-            obstacle.gap
-
-        );
-
-
-        /* 아래 끝 */
-
-        ctx.fillStyle =
-            "#22c55e";
-
-
-        ctx.fillRect(
-
-            obstacle.x - 7,
-
-            obstacle.top +
-            obstacle.gap,
-
-            obstacle.width + 14,
-
-            16
-
-        );
-
-    }
-
-}
-
-
-/* =====================================================
-   장안고 로고 캐릭터
-===================================================== */
-
-function drawPlayer() {
-
-    const x =
-        player.x;
-
-    const y =
-        player.y;
-
-    const size =
-        player.size;
-
-
-    /* 속도에 따른 회전 */
-
-    const rotation =
-        Math.max(
-
-            -0.25,
-
-            Math.min(
-                0.55,
-                player.velocity *
-                0.035
-            )
-
-        );
-
-
+    // 플레이어(로고) 그리기
     ctx.save();
-
-
-    ctx.translate(
-
-        x + size / 2,
-
-        y + size / 2
-
-    );
-
-
-    ctx.rotate(
-        rotation
-    );
-
-
-    /* 원형 클리핑 */
-
+    ctx.translate(bird.x + bird.size/2, bird.y + bird.size/2);
+    let rot = Math.max(-0.3, Math.min(0.5, bird.vel * 0.04));
+    ctx.rotate(rot);
     ctx.beginPath();
-
-
-    ctx.arc(
-
-        0,
-        0,
-
-        size / 2,
-
-        0,
-        Math.PI * 2
-
-    );
-
-
-    ctx.closePath();
-
-
+    ctx.arc(0, 0, bird.size/2, 0, Math.PI * 2);
     ctx.clip();
 
-
-    /* 장안고 로고 */
-
-    if (
-        logo.complete &&
-        logo.naturalWidth > 0
-    ) {
-
-        ctx.drawImage(
-
-            logo,
-
-            -size / 2,
-
-            -size / 2,
-
-            size,
-
-            size
-
-        );
-
+    if(logo.complete && logo.naturalWidth > 0) {
+        ctx.drawImage(logo, -bird.size/2, -bird.size/2, bird.size, bird.size);
+    } else {
+        ctx.fillStyle = "#facc15"; ctx.fill();
     }
-
-    else {
-
-        /*
-           logo.png가 아직 없을 때
-           임시 원
-        */
-
-        ctx.fillStyle =
-            "#a3c63b";
-
-        ctx.fill();
-
-    }
-
-
-    /* 테두리 */
-
     ctx.restore();
 
+    // 테두리
     ctx.save();
-
-
-    ctx.translate(
-
-        x + size / 2,
-
-        y + size / 2
-
-    );
-
-
-    ctx.rotate(
-        rotation
-    );
-
-
+    ctx.translate(bird.x + bird.size/2, bird.y + bird.size/2);
+    ctx.rotate(rot);
     ctx.beginPath();
-
-
-    ctx.arc(
-
-        0,
-        0,
-
-        size / 2 - 1,
-
-        0,
-        Math.PI * 2
-
-    );
-
-
-    ctx.lineWidth = 3;
-
-    ctx.strokeStyle =
-        "#facc15";
-
-    ctx.stroke();
-
-
+    ctx.arc(0, 0, bird.size/2 - 1, 0, Math.PI * 2);
+    ctx.lineWidth = 3; ctx.strokeStyle = "#facc15"; ctx.stroke();
     ctx.restore();
 
+    requestAnimationFrame(loop);
 }
 
-
-/* =====================================================
-   화면 그리기
-===================================================== */
-
-function draw() {
-
-    ctx.clearRect(
-        0,
-        0,
-        WIDTH,
-        HEIGHT
-    );
-
-
-    drawBackground();
-
-    drawObstacles();
-
-    drawPlayer();
-
-}
-
-
-/* =====================================================
-   게임 루프
-===================================================== */
-
-function gameLoop() {
-
-    update();
-
-    draw();
-
-    requestAnimationFrame(
-        gameLoop
-    );
-
-}
-
-
-/* =====================================================
-   키보드
-===================================================== */
-
-document.addEventListener(
-    "keydown",
-    function(event) {
-
-        if (
-            event.code === "Space"
-        ) {
-
-            event.preventDefault();
-
-            jump();
-
-        }
-
-    }
-);
-
-
-/* =====================================================
-   마우스 / 터치
-===================================================== */
-
-canvas.addEventListener(
-    "pointerdown",
-    function() {
-
-        jump();
-
-    }
-);
-
-
-/* =====================================================
-   시작 화면
-===================================================== */
-
-menu.innerHTML = `
-
-    <div class="panel">
-
-        <h1>
-            🟢 JANGAN BIRD
-        </h1>
-
-        <p>
-            장안고 로고를 움직여
-            장애물을 피하세요!
-        </p>
-
-        <p>
-            SPACE / 클릭 = 점프
-        </p>
-
-        <button onclick="startGame()">
-            게임 시작
-        </button>
-
-        ${leaderboardHTML()}
-
-    </div>
-
-`;
-
-
-/* =====================================================
-   시작
-===================================================== */
-
-gameLoop();
-
+showMenu();
+loop();
 </script>
-
 </body>
 </html>
